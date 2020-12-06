@@ -1,24 +1,7 @@
 # heimamm-mobile
 
-## Project setup
-```
-npm install
-```
+## 后台接口地址
+https://www.showdoc.com.cn/819963065638973?page_id=4744074055296227
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## 设计稿地址
+https://app.mockplus.cn/team/invitation/XLJ2VplnJV

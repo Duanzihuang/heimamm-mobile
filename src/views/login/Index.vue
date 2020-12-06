@@ -29,7 +29,7 @@
           <i style="margin-right:10px;" class="iconfont iconyanzhengma"></i>
         </template>
         <template #button>
-          <span class="code" @click="getCode">发送验证码</span>
+          <span class="code" @click="getCode">{{ tipName }}</span>
         </template>
       </van-field>
     </van-form>
@@ -59,6 +59,10 @@ import { setToken } from '@/utils/token'
 export default {
   data () {
     return {
+      tipName: '获取验证码', // 倒计时的提示文字
+      count: 10, // 倒计时的总秒数
+      isCountDown: false, // 是否正在倒计时
+      timer: null, // 定时器
       form: {
         mobile: '', // 手机号
         code: '' // 验证码
@@ -72,9 +76,28 @@ export default {
     },
     // 获取验证码
     getCode () {
+      if (this.isCountDown) return
       this.$refs.form
         .validate('mobile')
         .then(async () => {
+          // 开始倒计时
+          this.tipName = `${this.count}s后重试`
+          this.isCountDown = true
+
+          this.timer = setInterval(() => {
+            if (this.count <= 1) {
+              clearInterval(this.timer)
+              // 重置
+              this.isCountDown = false
+              this.count = 10
+              this.tipName = '获取验证码'
+              return
+            }
+
+            this.count--
+            this.tipName = `${this.count}s后重试`
+          }, 1000)
+
           const res = await getAuCode({ mobile: this.form.mobile })
 
           if (res.code === 200) {
@@ -106,7 +129,7 @@ export default {
           this.$store.commit('setIsLogin', true)
 
           // 路由跳转
-          this.$router.push('/home')
+          this.$router.push('/layout')
         } else {
           this.$toast.fail(res.message)
         }
@@ -114,6 +137,9 @@ export default {
         console.log('error is ', error)
       }
     }
+  },
+  beforeDestroy () {
+    clearInterval(this.timer)
   }
 }
 </script>

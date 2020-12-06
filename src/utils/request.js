@@ -1,4 +1,6 @@
 import axios from 'axios'
+import { getToken, removeToken } from './token'
+import router from '@/router'
 
 // 创建一个副本
 const request = axios.create({
@@ -7,6 +9,10 @@ const request = axios.create({
 // 请求拦截
 request.interceptors.request.use(
   function (config) {
+    const token = getToken()
+    if (token) {
+      config.headers.authorization = `Bearer ${token}`
+    }
     return config
   },
   function (error) {
@@ -16,6 +22,13 @@ request.interceptors.request.use(
 // 响应拦截
 request.interceptors.response.use(
   function (res) {
+    if (res.data.code === 403) {
+      // token过期了
+      removeToken() // 删除token
+
+      // 跳转到登录页面
+      router.push('/login')
+    }
     return res.data
   },
   function (error) {
