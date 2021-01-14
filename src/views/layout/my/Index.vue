@@ -9,7 +9,11 @@
           </div>
         </div>
         <div class="right">
-          <img src="@/assets/avatar.jpg" alt="" />
+          <img
+            @click="$router.push('/layout/myinfo')"
+            src="@/assets/avatar.jpg"
+            alt=""
+          />
         </div>
       </div>
       <div class="tips">

@@ -8,6 +8,11 @@ export default new Vuex.Store({
     userInfo: {},
     isLogin: false
   },
+  getters: {
+    getUserInfo (state) {
+      return state.userInfo
+    }
+  },
   mutations: {
     setUserInfo (state, userInfo) {
       state.userInfo = userInfo

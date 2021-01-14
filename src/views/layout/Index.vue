@@ -1,37 +1,40 @@
 <template>
   <div style="height:100%;">
     <router-view></router-view>
-    <van-tabbar
-      inactive-color="#b4b4bd"
-      active-color="#e40137"
-      route
-      placeholder
-    >
-      <van-tabbar-item to="/layout/company">
-        <span class="title">公司</span>
-        <template #icon>
-          <i class="iconfont">&#xe63d;</i>
-        </template></van-tabbar-item
+    <transition name="tabbar">
+      <van-tabbar
+        v-if="$route.meta.needTab"
+        inactive-color="#b4b4bd"
+        active-color="#e40137"
+        route
+        placeholder
       >
-      <van-tabbar-item to="/layout/question">
-        <span class="title">刷题</span>
-        <template #icon>
-          <i class="iconfont">&#xe63f;</i>
-        </template></van-tabbar-item
-      >
-      <van-tabbar-item to="/layout/find">
-        <span class="title">发现</span>
-        <template #icon>
-          <i class="iconfont">&#xe646;</i>
-        </template></van-tabbar-item
-      >
-      <van-tabbar-item to="/layout/my">
-        <span class="title">我的</span>
-        <template #icon>
-          <i class="iconfont">&#xe645;</i>
-        </template></van-tabbar-item
-      >
-    </van-tabbar>
+        <van-tabbar-item to="/layout/company">
+          <span class="title">公司</span>
+          <template #icon>
+            <i class="iconfont">&#xe63d;</i>
+          </template></van-tabbar-item
+        >
+        <van-tabbar-item to="/layout/question">
+          <span class="title">刷题</span>
+          <template #icon>
+            <i class="iconfont">&#xe63f;</i>
+          </template></van-tabbar-item
+        >
+        <van-tabbar-item to="/layout/find">
+          <span class="title">发现</span>
+          <template #icon>
+            <i class="iconfont">&#xe646;</i>
+          </template></van-tabbar-item
+        >
+        <van-tabbar-item to="/layout/my">
+          <span class="title">我的</span>
+          <template #icon>
+            <i class="iconfont">&#xe645;</i>
+          </template></van-tabbar-item
+        >
+      </van-tabbar>
+    </transition>
   </div>
 </template>
 
@@ -46,5 +49,16 @@
   text-align: left;
   // line-height: 100px;
   letter-spacing: 0px;
+}
+.tabbar-enter-active,
+.tabbar-leave-active {
+  transition: opacity 0.5s;
+}
+.tabbar-enter, .tabbar-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
+.tabbar-enter-to,
+.tabbar-leave {
+  opacity: 1;
 }
 </style>

@@ -12,6 +12,8 @@ import Company from '../views/layout/company/Index'
 import Question from '../views/layout/question/Index'
 import Find from '../views/layout/find/Index'
 import My from '../views/layout/my/Index'
+import MyInfo from '../views/layout/my/MyInfo'
+import InfoEdit from '../views/layout/my/InfoEdit'
 
 Vue.use(VueRouter)
 
@@ -27,10 +29,38 @@ const routes = [
     component: Layout,
     redirect: '/layout/my',
     children: [
-      { path: '/layout/company', component: Company },
-      { path: '/layout/question', component: Question },
-      { path: '/layout/find', component: Find },
-      { path: '/layout/my', component: My, meta: { needLogin: true } }
+      {
+        path: '/layout/company',
+        component: Company,
+        meta: {
+          needTab: true
+        }
+      },
+      {
+        path: '/layout/question',
+        component: Question,
+        meta: {
+          needTab: true
+        }
+      },
+      {
+        path: '/layout/find',
+        component: Find,
+        meta: {
+          needTab: true
+        }
+      },
+      {
+        path: '/layout/my',
+        component: My,
+        meta: { needLogin: true, needTab: true }
+      },
+      { path: '/layout/myinfo', component: MyInfo, meta: { needLogin: true } },
+      {
+        path: '/layout/infoedit',
+        component: InfoEdit,
+        meta: { needLogin: true }
+      }
     ]
   },
   {

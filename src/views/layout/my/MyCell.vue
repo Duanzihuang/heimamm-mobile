@@ -8,6 +8,10 @@
     <template #title>
       <span class="title">{{ title }}</span>
     </template>
+    <template #default>
+      <img v-if="avatar" :src="avatar" alt="" class="avatar" />
+      <span v-else class="right-content">{{ value }}</span>
+    </template>
   </van-cell>
 </template>
 
@@ -16,6 +20,10 @@ export default {
   props: {
     icon: String,
     title: String,
+    avatar: {
+      type: String,
+      default: ''
+    }, // 头像
     value: [String, Number]
   }
 }
@@ -23,6 +31,7 @@ export default {
 
 <style lang="less" scoped>
 .my-cell {
+  // border-radius: 8px;
   .iconfont {
     font-size: 20px;
     padding-right: 12px;
@@ -44,6 +53,14 @@ export default {
     color: #5b5d75;
     line-height: 20px;
     letter-spacing: 0px;
+  }
+  .right-content {
+    color: #969799;
+  }
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
   }
 }
 </style>
