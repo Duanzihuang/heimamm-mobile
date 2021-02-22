@@ -11,6 +11,7 @@ import Layout from '../views/layout/Index.vue'
 import Company from '../views/layout/company/Index'
 import Question from '../views/layout/question/Index'
 import Find from '../views/layout/find/Index'
+import ShareList from '../views/layout/find/ShareList'
 import My from '../views/layout/my/Index'
 import MyInfo from '../views/layout/my/MyInfo'
 import InfoEdit from '../views/layout/my/InfoEdit'
@@ -51,6 +52,13 @@ const routes = [
         }
       },
       {
+        path: '/layout/shareList',
+        component: ShareList,
+        meta: {
+          needTab: false
+        }
+      },
+      {
         path: '/layout/my',
         component: My,
         meta: { needLogin: true, needTab: true }
@@ -75,6 +83,12 @@ const router = new VueRouter({
 
 // 导航守卫
 router.beforeEach(async (to, from, next) => {
+  // 记录跳转之前滚动到的位置
+  from.meta.top =
+    document.documentElement.scrollTop ||
+    window.pageYOffset ||
+    document.body.scrollTop
+
   if (!to.meta.needLogin) {
     // 不需要登录
     next()
@@ -101,6 +115,10 @@ router.beforeEach(async (to, from, next) => {
       next('/login')
     }
   }
+})
+
+router.afterEach(() => {
+  window.scroll(0, 0)
 })
 
 export default router

@@ -1,85 +1,91 @@
 <template>
   <div class="find">
-    <van-nav-bar title="发现" />
-    <div class="interview-box">
-      <div class="title-box">
-        <div class="title">面试技巧</div>
-        <div class="arrow-box">
-          <span>查看更多</span>
-          <i class="iconfont iconicon_more"></i>
-        </div>
-      </div>
-      <div class="interview-list">
-        <technic-item :item="item" v-for="item in technicList" :key="item.id" />
-      </div>
-    </div>
-    <div class="shop-box">
-      <div class="title-box">
-        <div class="title">市场数据</div>
-        <div class="arrow-box">
-          <span>查看更多</span>
-          <i class="iconfont iconicon_more"></i>
-        </div>
-      </div>
-      <span class="tag">中山</span>
-      <span class="tag">设计师</span>
-      <div
-        class="item"
-        v-for="(item, index) in chart.yearSalary"
-        :key="item.year"
-        v-show="index < showSize"
-      >
-        <span> {{ item.year }}</span>
-        <div class="process">
-          <div class="step" :style="{ width: item.width + '%' }">
-            ¥{{ item.salary }}
+    <van-pull-refresh v-model="isLoading" @refresh="handleRefresh">
+      <van-nav-bar title="发现" />
+      <div class="interview-box">
+        <div class="title-box">
+          <div class="title">面试技巧</div>
+          <div class="arrow-box">
+            <span>查看更多</span>
+            <i class="iconfont iconicon_more"></i>
           </div>
         </div>
-        <div class="arrow-box">
-          <i
-            v-if="item.percent && item.percent > 0"
-            class="iconfont iconicon_shangsheng"
-          ></i>
-          <i
-            v-if="item.percent && item.percent < 0"
-            class="iconfont iconicon_xiajiang"
-          ></i>
-          <i v-if="!item.percent" class="iconfont"></i
-          ><span class="percent-span" v-if="item.percent"
-            >{{ item.percent }}%</span
-          >
-          <span class="percent-span" v-else></span>
+        <div class="interview-list">
+          <technic-item
+            :item="item"
+            v-for="item in technicList"
+            :key="item.id"
+          />
         </div>
       </div>
-      <div
-        v-if="chart.yearSalary.length > showSize"
-        @click="showSize = 100"
-        class="more"
-      >
-        <span>展开更多</span>
-        <i class="iconfont iconicon_zhankai"></i>
-      </div>
-      <div
-        v-if="chart.yearSalary.length < showSize"
-        @click="showSize = 3"
-        class="more"
-      >
-        <span>收起显示</span>
-        <i class="iconfont iconicon_zhankai rotate"></i>
-      </div>
-    </div>
-    <div class="experience-box">
-      <div class="title-box">
-        <div class="title">面经分享</div>
-        <div class="arrow-box">
-          <span>查看更多</span>
-          <i class="iconfont iconicon_more"></i>
+      <div class="shop-box">
+        <div class="title-box">
+          <div class="title">市场数据</div>
+          <div class="arrow-box">
+            <span>查看更多</span>
+            <i class="iconfont iconicon_more"></i>
+          </div>
+        </div>
+        <span class="tag">中山</span>
+        <span class="tag">设计师</span>
+        <div
+          class="item"
+          v-for="(item, index) in chart.yearSalary"
+          :key="item.year"
+          v-show="index < showSize"
+        >
+          <span> {{ item.year }}</span>
+          <div class="process">
+            <div class="step" :style="{ width: item.width + '%' }">
+              ¥{{ item.salary }}
+            </div>
+          </div>
+          <div class="arrow-box">
+            <i
+              v-if="item.percent && item.percent > 0"
+              class="iconfont iconicon_shangsheng"
+            ></i>
+            <i
+              v-if="item.percent && item.percent < 0"
+              class="iconfont iconicon_xiajiang"
+            ></i>
+            <i v-if="!item.percent" class="iconfont"></i
+            ><span class="percent-span" v-if="item.percent"
+              >{{ item.percent }}%</span
+            >
+            <span class="percent-span" v-else></span>
+          </div>
+        </div>
+        <div
+          v-if="chart.yearSalary.length > showSize"
+          @click="showSize = 100"
+          class="more"
+        >
+          <span>展开更多</span>
+          <i class="iconfont iconicon_zhankai"></i>
+        </div>
+        <div
+          v-if="chart.yearSalary.length < showSize"
+          @click="showSize = 3"
+          class="more"
+        >
+          <span>收起显示</span>
+          <i class="iconfont iconicon_zhankai rotate"></i>
         </div>
       </div>
-      <div class="experience-list">
-        <share-item v-for="item in shareList" :key="item.id" :item="item" />
+      <div class="experience-box">
+        <div class="title-box">
+          <div class="title">面经分享</div>
+          <div class="arrow-box">
+            <span @click="$router.push('/layout/shareList')">查看更多</span>
+            <i class="iconfont iconicon_more"></i>
+          </div>
+        </div>
+        <div class="experience-list">
+          <share-item v-for="item in shareList" :key="item.id" :item="item" />
+        </div>
       </div>
-    </div>
+    </van-pull-refresh>
   </div>
 </template>
 
@@ -88,7 +94,7 @@ import TechnicItem from './TechnicItem'
 import ShareItem from './ShareItem'
 import { getTechnicList, chartDataHot, getArticlesShare } from '@/api/find'
 export default {
-  name: 'Find',
+  name: 'Find', // keep-alive 缓存使用
   components: {
     TechnicItem,
     ShareItem
@@ -110,37 +116,76 @@ export default {
         start: 0,
         limit: 5,
         q: ''
-      }
+      },
+      isLoading: false
     }
   },
   mounted () {
-    this.getTechnicList()
-    this.getChartDataHot()
-    this.getArticlesShareList()
+    // this.getTechnicList()
+    // this.getChartDataHot()
+    // this.getArticlesShareList()
+
+    this.handleRefresh()
+  },
+  activated () {
+    window.scrollTo(0, this.$route.meta.top ? this.$route.meta.top : 0)
   },
   methods: {
-    async getTechnicList () {
-      const res = await getTechnicList(this.query)
+    // 获取面试技巧的数据
+    // async getTechnicList () {
+    //   const res = await getTechnicList(this.query)
 
-      if (res.code === 200) {
-        this.technicList = res.data.list
-      }
-    },
-    async getChartDataHot () {
-      const res = await chartDataHot()
+    //   if (res.code === 200) {
+    //     this.technicList = res.data.list
+    //   }
+    // },
+    // 获取市场数据
+    // async getChartDataHot () {
+    //   const res = await chartDataHot()
 
-      res.data.yearSalary.forEach(item => {
-        item.width = (parseInt(item.salary) / res.data.topSalary) * 100
+    //   res.data.yearSalary.forEach(item => {
+    //     item.width = (parseInt(item.salary) / res.data.topSalary) * 100
+    //   })
+
+    //   this.chart = res.data
+    // },
+    // 获取面试分享的数据
+    // async getArticlesShareList () {
+    //   const res = await getArticlesShare(this.shareQuery)
+
+    //   if (res.code === 200) {
+    //     this.shareList = res.data.list
+    //   }
+    // }
+    async handleRefresh () {
+      const resList = await Promise.all([
+        getTechnicList(this.query),
+        chartDataHot(),
+        getArticlesShare(this.shareQuery)
+      ])
+      // 保存到仓库中
+      this.$store.commit('setResList', resList)
+      // 取到各自的数据进行处理
+      const res1 = resList[0]
+      const res2 = resList[1]
+      const res3 = resList[2]
+
+      this.technicList = res1.data.list
+
+      res2.data.yearSalary.forEach(item => {
+        item.width = (parseInt(item.salary) / res2.data.topSalary) * 100
       })
+      this.chart = res2.data
 
-      this.chart = res.data
-    },
-    async getArticlesShareList () {
-      const res = await getArticlesShare(this.shareQuery)
+      this.shareList = res3.data.list
 
-      if (res.code === 200) {
-        this.shareList = res.data.list
-      }
+      // 停止下拉刷新
+      this.isLoading = false
+
+      // 滚动到之前的位置
+      this.$nextTick(() => {
+        window.scrollTo(0, this.$route.meta.top ? this.$route.meta.top : 0)
+      })
     }
   }
 }

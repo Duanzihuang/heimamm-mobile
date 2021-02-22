@@ -10,7 +10,9 @@ const request = axios.create({
 request.interceptors.request.use(
   function (config) {
     const token = getToken()
-    if (token) {
+    // 是否需要携带token，默认值为true
+    const needToken = config.needToken
+    if (needToken && token) {
       config.headers.authorization = `Bearer ${token}`
     }
     return config

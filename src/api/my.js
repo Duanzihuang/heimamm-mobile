@@ -5,7 +5,8 @@ import request from '@/utils/request'
  */
 export const getUserInfo = () => {
   return request({
-    url: '/au/info'
+    url: '/au/info',
+    needToken: true
   })
 }
 
@@ -26,6 +27,7 @@ export const editUserInfo = data => {
   return request({
     url: '/au/edit',
     method: 'POST',
-    data
+    data,
+    needToken: true
   })
 }

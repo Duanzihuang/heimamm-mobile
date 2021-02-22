@@ -1,6 +1,17 @@
 <template>
   <div style="height:100%;">
-    <router-view></router-view>
+    <!--
+     缓存页面组件
+     keep-alive  可以理解成v-show的使用
+     步骤:将需要缓存的页面对应的路由出口加一个keep-alive包住
+     如果只需要缓存某个别页面
+        include="页面组件对应的name值"
+     除了某页面,其它页面都缓存
+        exclude="页面组件对应的name值"
+      -->
+    <keep-alive include="Find">
+      <router-view></router-view>
+    </keep-alive>
     <transition name="tabbar">
       <van-tabbar
         v-if="$route.meta.needTab"

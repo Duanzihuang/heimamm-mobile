@@ -32,7 +32,7 @@
         />
       </div>
       <div class="logout">
-        <div>退出登录</div>
+        <div @click="logout">退出登录</div>
       </div>
     </div>
     <!-- 性别修改弹出框 -->
@@ -68,6 +68,7 @@
 import MyCell from './MyCell'
 import { editUserInfo } from '@/api/my'
 import { mapGetters } from 'vuex'
+import { removeToken } from '@/utils/token'
 import area from '@/assets/js/area'
 export default {
   name: 'MyInfo',
@@ -167,6 +168,29 @@ export default {
     // 修改信息
     editInfo (type) {
       this.$router.push('/layout/infoedit?type=' + type)
+    },
+    // 退出登录
+    logout () {
+      this.$dialog
+        .confirm({
+          title: '提示',
+          message: '确认退出吗？'
+        })
+        .then(async () => {
+          // on confirm
+          // 清除token
+          removeToken()
+
+          // 设置登录状态，以及清除用户信息
+          this.$store.commit('setUserInfo', null)
+          this.$store.commit('setIsLogin', false)
+
+          // 跳转到登录页面
+          this.$router.push('/')
+        })
+        .catch(() => {
+          // on cancel
+        })
     }
   }
 }

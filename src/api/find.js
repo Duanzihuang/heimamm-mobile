@@ -19,6 +19,15 @@ export const getArticlesShare = params => {
 // 获取历年工资数据
 export const chartDataHot = () => {
   return request({
-    url: '/chart-data/hot'
+    url: '/chart-data/hot',
+    needToken: false
+  })
+}
+
+// 面经关键字搜索
+export const shareTopSearch = () => {
+  return request({
+    url: '/articles/shareTopSearch',
+    needToken: false
   })
 }

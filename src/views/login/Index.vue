@@ -102,6 +102,8 @@ export default {
 
           if (res.code === 200) {
             this.$toast(res.data)
+
+            this.form.code = res.data
           } else {
             this.$toast(res.message)
           }

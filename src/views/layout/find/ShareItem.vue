@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="item van-hairline--bottom">
-      <div class="title van-multi-ellipsis--l2">
-        {{ item.title }}
+      <div class="title van-multi-ellipsis--l2" v-html="item.title">
+        <!-- {{ item.title }} -->
       </div>
       <div class="content ">
         {{ item.content }}
