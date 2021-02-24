@@ -12,6 +12,7 @@ import Company from '../views/layout/company/Index'
 import Question from '../views/layout/question/Index'
 import Find from '../views/layout/find/Index'
 import ShareList from '../views/layout/find/ShareList'
+import ShareInfo from '../views/layout/find/ShareInfo'
 import My from '../views/layout/my/Index'
 import MyInfo from '../views/layout/my/MyInfo'
 import InfoEdit from '../views/layout/my/InfoEdit'
@@ -59,6 +60,13 @@ const routes = [
         }
       },
       {
+        path: '/layout/shareInfo',
+        component: ShareInfo,
+        meta: {
+          needTab: false
+        }
+      },
+      {
         path: '/layout/my',
         component: My,
         meta: { needLogin: true, needTab: true }
@@ -92,6 +100,22 @@ router.beforeEach(async (to, from, next) => {
   if (!to.meta.needLogin) {
     // 不需要登录
     next()
+
+    // 实现刷新浏览器时登录
+    /*
+    如果满足登陆条件,我们就默默登陆
+     1:有token   2:没有登陆
+    */
+    if (!store.state.isLogin && getToken()) {
+      try {
+        const res = await getUserInfo(false)
+        // vuex中设置用户信息和是否登录
+        store.commit('setUserInfo', res.data)
+        store.commit('setIsLogin', true)
+      } catch (error) {
+        console.log('error is ', error)
+      }
+    }
   } else {
     // 需要登录
     const token = getToken()

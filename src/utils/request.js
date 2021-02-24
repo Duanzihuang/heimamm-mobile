@@ -1,6 +1,8 @@
 import axios from 'axios'
 import { getToken, removeToken } from './token'
 import router from '@/router'
+import { Toast } from 'vant'
+import store from '@/store'
 
 // 创建一个副本
 const request = axios.create({
@@ -24,14 +26,33 @@ request.interceptors.request.use(
 // 响应拦截
 request.interceptors.response.use(
   function (res) {
-    if (res.data.code === 403) {
+    if (res.data.code === 200) {
+      return res.data
+    } else if (!res.config.needDealError) {
       // token过期了
       removeToken() // 删除token
 
+      // 设置未登录
+      store.commit('setIsLogin', false)
+
+      // 阻止.then执行
+      return Promise.reject(new Error(res.data.message))
+    } else if (res.data.code === 401 || res.data.code === 403) {
+      // token过期了
+      removeToken() // 删除token
+
+      // 提示信息
+      Toast.fail(res.data.message)
+
+      // 设置未登录
+      store.commit('setIsLogin', false)
+
       // 跳转到登录页面
       router.push('/login')
+
+      // 阻止.then执行
+      return Promise.reject(new Error(res.data.message))
     }
-    return res.data
   },
   function (error) {
     return Promise.reject(error)

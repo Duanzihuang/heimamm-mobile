@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="item van-hairline--bottom">
+    <div @click="goShareInfo" class="item van-hairline--bottom">
       <div class="title van-multi-ellipsis--l2" v-html="item.title">
         <!-- {{ item.title }} -->
       </div>
@@ -35,6 +35,11 @@ export default {
       default: function () {
         return {}
       }
+    }
+  },
+  methods: {
+    goShareInfo () {
+      this.$router.push(`/layout/shareInfo?id=${this.item.id}`)
     }
   }
 }

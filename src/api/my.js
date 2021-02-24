@@ -3,10 +3,11 @@ import request from '@/utils/request'
 /**
  * 获取用户信息
  */
-export const getUserInfo = () => {
+export const getUserInfo = (needDealError = true) => {
   return request({
     url: '/au/info',
-    needToken: true
+    needToken: true,
+    needDealError
   })
 }
 
