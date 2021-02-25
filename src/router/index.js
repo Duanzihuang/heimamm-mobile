@@ -10,6 +10,7 @@ import Login from '../views/login/Index.vue'
 import Layout from '../views/layout/Index.vue'
 import Company from '../views/layout/company/Index'
 import Question from '../views/layout/question/Index'
+import QuestionInfo from '../views/layout/question/QuestionInfo'
 import Find from '../views/layout/find/Index'
 import ShareList from '../views/layout/find/ShareList'
 import ShareInfo from '../views/layout/find/ShareInfo'
@@ -43,6 +44,13 @@ const routes = [
         component: Question,
         meta: {
           needTab: true
+        }
+      },
+      {
+        path: '/layout/questionInfo',
+        component: QuestionInfo,
+        meta: {
+          needLogin: true
         }
       },
       {
