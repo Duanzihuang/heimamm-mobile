@@ -3,6 +3,7 @@
 const path = require('path')
 
 module.exports = {
+  publicPath: './',
   // 配置pxtorem插件对代码中的px进行转换，以37.5为1rem的值
   // css: {
   //   loaderOptions: {

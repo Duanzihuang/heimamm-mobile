@@ -1,16 +1,18 @@
 <template>
   <div class="questionInfo">
-    <my-nav-bar title="刷题" rightText="答题卡" />
+    <my-nav-bar title="刷题" rightText="答题卡" @click-right="show = true" />
     <!-- 题目部分(标题、类别、选项) -->
-    <div class="content" v-if="detail">
+    <div class="content" v-if="list[currentIndex] && list[currentIndex].detail">
       <!-- 题型 -->
       <div class="title">
         <!-- 题型 -->
-        【{{ typeObj[detail.type] }}】{{ detail.title }}
+        【{{ typeObj[list[currentIndex].detail.type] }}】{{
+          list[currentIndex].detail.title
+        }}
       </div>
       <!-- 类别 -->
       <van-tag
-        v-for="item in detail.tag"
+        v-for="item in list[currentIndex].detail.tag"
         :key="item"
         class="tag"
         color="#f7f4f5"
@@ -21,42 +23,47 @@
       <div class="select">
         <!-- 单选选项 -->
         <div
-          v-show="detail.type === 1"
-          v-for="(item, index) in detail.option"
+          v-show="list[currentIndex].detail.type === 1"
+          v-for="(item, index) in list[currentIndex].detail.option"
           :key="item"
           class="select-item"
           @click="singleClick(optionsStr[index])"
           :class="{
             active: ans1 === optionsStr[index],
             right:
-              rightAnswer && rightAnswer.singleAnswer === optionsStr[index],
+              list[currentIndex] &&
+              list[currentIndex].rightAnswer &&
+              list[currentIndex].rightAnswer.singleAnswer === optionsStr[index],
             error:
               ans1 === optionsStr[index] &&
-              rightAnswer &&
-              rightAnswer.singleAnswer !== optionsStr[index]
+              list[currentIndex] &&
+              list[currentIndex].rightAnswer &&
+              list[currentIndex].rightAnswer.singleAnswer !== optionsStr[index]
           }"
         >
           {{ optionsStr[index] }}. {{ item }}
         </div>
         <!-- 多选选项 -->
         <div
-          v-show="detail.type === 2"
-          v-for="(item, index) in detail.option"
+          v-show="list[currentIndex].detail.type === 2"
+          v-for="(item, index) in list[currentIndex].detail.option"
           :key="index"
           class="select-item"
           @click="multipleClick(optionsStr[index])"
           :class="{
             active: ans2.includes(optionsStr[index]),
             right:
-              rightAnswer &&
-              rightAnswer.multipleAnswer &&
-              rightAnswer.multipleAnswer.includes(optionsStr[index])
+              list[currentIndex].rightAnswer &&
+              list[currentIndex].rightAnswer.multipleAnswer &&
+              list[currentIndex].rightAnswer.multipleAnswer.includes(
+                optionsStr[index]
+              )
           }"
         >
           {{ optionsStr[index] }}. {{ item }}
         </div>
         <!-- 简答选项 -->
-        <div v-show="detail.type === 3">
+        <div v-show="list[currentIndex].detail.type === 3">
           <van-field
             @input="inputEvent"
             type="textarea"
@@ -68,22 +75,31 @@
         </div>
       </div>
       <!-- 答案解析部分 -->
-      <div class="answer" v-if="rightAnswer">
+      <div
+        class="answer"
+        v-if="list[currentIndex] && list[currentIndex].rightAnswer"
+      >
         <div class="answer-title">答案解析</div>
         <div class="answer-right">
           正确答案：
-          <span v-if="detail.type === 1">{{ rightAnswer.singleAnswer }}</span>
-          <span v-if="detail.type === 2">{{
-            rightAnswer.multipleAnswer.join(',')
+          <span v-if="list[currentIndex].detail.type === 1">{{
+            list[currentIndex].rightAnswer.singleAnswer
+          }}</span>
+          <span v-if="list[currentIndex].detail.type === 2">{{
+            list[currentIndex].rightAnswer.multipleAnswer.join(',')
           }}</span>
         </div>
         <div class="other">
-          <span>难度：{{ difficultyObj[rightAnswer.difficulty] }}</span>
-          <span>提交次数：{{ rightAnswer.submitNum }}</span>
-          <span>正确次数{{ rightAnswer.correntNum }}</span>
+          <span
+            >难度：{{
+              difficultyObj[list[currentIndex].rightAnswer.difficulty]
+            }}</span
+          >
+          <span>提交次数：{{ list[currentIndex].rightAnswer.submitNum }}</span>
+          <span>正确次数{{ list[currentIndex].rightAnswer.correntNum }}</span>
         </div>
         <div class="answer-content">
-          {{ rightAnswer.answerAnalysis }}
+          {{ list[currentIndex].rightAnswer.answerAnalysis }}
         </div>
       </div>
     </div>
@@ -126,6 +142,30 @@
         >
       </div>
     </div>
+    <van-popup v-model="show" position="bottom">
+      <div class="card">
+        <span
+          class="item"
+          @click="skip(index)"
+          v-for="(item, index) in list"
+          :key="item.id"
+          :class="{
+            'right-item': item.rightAnswer && item.rightAnswer.isRight,
+            'error-item': item.rightAnswer && !item.rightAnswer.isRight
+          }"
+          >{{ index + 1 }}</span
+        >
+        <span class="noUse"></span>
+        <span class="noUse"></span>
+        <span class="noUse"></span>
+        <span class="noUse"></span>
+        <span class="noUse"></span>
+        <span class="noUse"></span>
+        <span class="noUse"></span>
+        <span class="noUse"></span>
+        <span class="noUse"></span>
+      </div>
+    </van-popup>
   </div>
 </template>
 
@@ -138,7 +178,7 @@ export default {
       type: this.$route.query.type,
       list: [], // 题目列表
       currentIndex: 0, // 当前索引
-      detail: null, // 题目具体信息
+      // detail: null, // 题目具体信息
       typeObj: {
         1: '单选',
         2: '多选',
@@ -156,12 +196,13 @@ export default {
         */
       step: 0, // 阶段
       questionId: null, // 问题id
-      rightAnswer: null, // 正确答案
+      // rightAnswer: null, // 正确答案
       difficultyObj: {
         1: '简单',
         2: '一般',
         3: '困难'
-      }
+      },
+      show: false // 是否显示对话框
     }
   },
   created () {
@@ -176,7 +217,7 @@ export default {
 
       if (res.code === 200) {
         this.list = res.data // 题目数组
-        this.detail = this.list[this.currentIndex].detail
+        // this.detail = this.list[this.currentIndex].detail
         this.questionId = this.list[this.currentIndex].id
       }
     },
@@ -221,28 +262,80 @@ export default {
         multipleAnswer: this.ans2
       })
 
+      // 记录下该题的答案
+      this.list[this.currentIndex].ans1 = this.ans1
+      this.list[this.currentIndex].ans2 = this.ans2
+      this.list[this.currentIndex].ans3 = this.ans3
+
       this.$toast.clear()
 
       if (res.code === 200) {
-        this.rightAnswer = res.data
+        // this.rightAnswer = res.data
+        this.list[this.currentIndex].rightAnswer = res.data
+
         this.step = this.list.length - 1 === this.currentIndex ? 3 : 2
       }
     },
     // 下一题
     async next () {
-      this.step = 0
+      // this.step = 0
+      // this.currentIndex++
+      // this.detail = null
+      // this.rightAnswer = null
+      // this.ans1 = ''
+      // this.ans2 = []
+      // this.ans3 = ''
+      // this.questionId = this.list[this.currentIndex].id
+      // // 根据新的题目的id，获取题目信息
+      // const res = await question(this.list[this.currentIndex].id)
+      // if (res.code === 200) {
+      //   this.detail = res.data
+      // }
+
       this.currentIndex++
-      this.detail = null
-      this.rightAnswer = null
+      this.skip(this.currentIndex)
+    },
+    async skip (index) {
+      // 关闭弹框
+      this.show = false
+
+      this.step = 0
+      this.currentIndex = index
       this.ans1 = ''
       this.ans2 = []
       this.ans3 = ''
+      // this.detail = null
+      // this.rightAnswer = null
       this.questionId = this.list[this.currentIndex].id
 
       // 根据新的题目的id，获取题目信息
-      const res = await question(this.list[this.currentIndex].id)
-      if (res.code === 200) {
-        this.detail = res.data
+      if (!this.list[this.currentIndex].detail) {
+        const res = await question(this.list[this.currentIndex].id)
+        if (res.code === 200) {
+          // this.list[this.currentIndex].detail = res.data
+
+          // 触发再次渲染
+          this.$set(this.list[this.currentIndex], 'detail', res.data)
+        }
+      } else {
+        // 已经有题目了
+        if (this.list[this.currentIndex].rightAnswer) {
+          // 之前选择过的答案
+          this.ans1 = this.list[this.currentIndex].ans1
+            ? this.list[this.currentIndex].ans1
+            : ''
+          this.ans2 = this.list[this.currentIndex].ans2
+            ? this.list[this.currentIndex].ans2
+            : []
+          this.ans3 = this.list[this.currentIndex].ans3
+            ? this.list[this.currentIndex].ans3
+            : ''
+          // 有答案
+          this.step = this.list.length - 1 === this.currentIndex ? 3 : 2
+        } else {
+          // 没答案
+          this.step = 0
+        }
       }
     },
     // 结束
@@ -366,30 +459,30 @@ export default {
   .field {
     border: 2px solid #ccc;
   }
-  .card {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 20px @p15 0;
-    justify-content: space-between;
-    height: 300px;
-    .item {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      text-align: center;
-      line-height: 30px;
-      color: #fff;
-      font-size: 12px;
-      background-color: #999999;
-      margin-right: 15px;
-      margin-bottom: 15px;
-    }
-    .noUse {
-      width: 30px;
-      height: 0;
-      margin-right: 15px;
-    }
-  }
+  // .card {
+  //   display: flex;
+  //   flex-wrap: wrap;
+  //   padding: 20px @p15 0;
+  //   justify-content: space-between;
+  //   height: 300px;
+  //   .item {
+  //     width: 30px;
+  //     height: 30px;
+  //     border-radius: 50%;
+  //     text-align: center;
+  //     line-height: 30px;
+  //     color: #fff;
+  //     font-size: 12px;
+  //     background-color: #999999;
+  //     margin-right: 15px;
+  //     margin-bottom: 15px;
+  //   }
+  //   .noUse {
+  //     width: 30px;
+  //     height: 0;
+  //     margin-right: 15px;
+  //   }
+  // }
   //   正确
   .right {
     background-color: #22e908 !important;
@@ -397,6 +490,39 @@ export default {
   // 错误
   .error {
     background-color: #ff4400 !important;
+  }
+  .card {
+    display: flex;
+    flex-wrap: wrap;
+    text-align: center;
+    padding: 20px @p15 0;
+    .item {
+      padding: 5px;
+      width: 30px;
+      height: 30px;
+      line-height: 30px;
+      margin-right: 15px;
+      margin-bottom: 15px;
+      border: 1px solid #e1e1e5;
+      border-radius: 50%;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+    .right-item {
+      background-color: #ddfad9;
+      color: #4dd491;
+      border: 1px solid #ddfad9;
+    }
+    .error-item {
+      background-color: #ffefea;
+      color: #ff5a59;
+      border: 1px solid #ffefea;
+    }
+    .noUse {
+      width: 30px;
+      height: 0px;
+      margin-right: 15px;
+    }
   }
 }
 </style>
